@@ -1,0 +1,44 @@
+// Always use a 64fs bclk_ratio
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2708";
+
+	fragment@0 {
+		target = <&sound>;
+		__overlay__ {
+			// 2ch, 32/24/16bit rule
+			// set bclk_ratio=64
+			hw-params-rule@0 {
+				rule-name = "32/24/16BIT_2CH_BCLK64";
+				priority = <99>;
+				match@0 {
+					method = "asoc_generic_hw_params_match_channels";
+					values = <2>;
+				};
+				match@1 {
+					method = "asoc_generic_hw_params_match_sample_bits";
+					values = <32>, <24>, <16>;
+				};
+				action@0 {
+					method = "asoc_generic_hw_params_set_fixed_bclk_size";
+					value = <64>;
+				};
+			};
+			// default rule
+			// set blck_ratio=0 (Let cpu driver decide bclk_ratio)
+			hw-params-rule@1 {
+				rule-name = "DEFAULT_BCLK0";
+				priority = <0>;
+				match@0 {
+					method = "asoc_generic_hw_params_match_noop";
+				};
+				action@0 {
+					method = "asoc_generic_hw_params_set_fixed_bclk_size";
+					value = <0>;
+				};
+			};
+		};
+	};
+};

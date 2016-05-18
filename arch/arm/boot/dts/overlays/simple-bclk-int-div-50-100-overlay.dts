@@ -1,0 +1,79 @@
+// Definitions of bclk_integer_divisor preference for multiples of 8k rates.
+//  bclk_ratio=50 for S16_LE. bclk_ratio=100 for S24_LE and S32_LE.
+/dts-v1/;
+/plugin/;
+
+/ {
+	compatible = "brcm,bcm2708";
+
+	fragment@0 {
+		target = <&sound>;
+		__overlay__ {
+			// 2ch, 32bit @ 8/16/32/48/64/96kHz rule
+			// set bclk_ratio=100
+			hw-params-rule@0 {
+				rule-name = "x8kHz_32BIT_2CH_BCLK100";
+				priority = <99>;
+				match@0 {
+					method = "asoc_generic_hw_params_match_channels";
+					values = <2>;
+				};
+				match@1 {
+					method = "asoc_generic_hw_params_match_rate_lt";
+					value = <192000>;
+				};
+				match@2 {
+					method = "asoc_generic_hw_params_match_rate_div_by";
+					value = <8000>;
+				};
+				match@3 {
+					method = "asoc_generic_hw_params_match_sample_bits";
+					values = <32>;
+				};
+				action@0 {
+					method = "asoc_generic_hw_params_set_fixed_bclk_size";
+					value = <100>;
+				};
+			};
+			// 2ch, 16bit @ 8/16/32/48/64/96kHz rule
+			// set bclk_ratio=50
+			hw-params-rule@1 {
+				rule-name = "x8kHz_16BIT_2CH_BCLK50";
+				priority = <99>;
+				match@0 {
+					method = "asoc_generic_hw_params_match_channels";
+					values = <2>;
+				};
+				match@1 {
+					method = "asoc_generic_hw_params_match_rate_lt";
+					value = <192000>;
+				};
+				match@2 {
+					method = "asoc_generic_hw_params_match_rate_div_by";
+					value = <8000>;
+				};
+				match@3 {
+					method = "asoc_generic_hw_params_match_sample_bits";
+					values = <16>;
+				};
+				action@0 {
+					method = "asoc_generic_hw_params_set_fixed_bclk_size";
+					value = <50>;
+				};
+			};
+			// default rule
+			// set blck_ratio=0 (Let cpu driver decide bclk_ratio)
+			hw-params-rule@2 {
+				rule-name = "DEFAULT_BCLK0";
+				priority = <0>;
+				match@0 {
+					method = "asoc_generic_hw_params_match_noop";
+				};
+				action@0 {
+					method = "asoc_generic_hw_params_set_fixed_bclk_size";
+					value = <0>;
+				};
+			};
+		};
+	};
+};
